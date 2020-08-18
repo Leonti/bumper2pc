@@ -5,7 +5,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "sensor_msgs/msg/point_field.hpp"
-#include "bumper2pc/msg/bumper.hpp"
+#include "bumper_interfaces/msg/bumper.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -53,13 +53,13 @@ public:
 
     publisher_ = create_publisher<sensor_msgs::msg::PointCloud2>("bumper_point_cloud", 10);
 
-    subscription_ = this->create_subscription<bumper2pc::msg::Bumper>(
+    subscription_ = this->create_subscription<bumper_interfaces::msg::Bumper>(
       "bumper", 10, std::bind(&Bumper2Pc::bumper_topic_callback, this, _1));
 
 //    timer_ = this->create_wall_timer(500ms, std::bind(&Bumper2Pc::respond, this));
   }
 
-  void bumper_topic_callback(const bumper2pc::msg::Bumper::SharedPtr msg) 
+  void bumper_topic_callback(const bumper_interfaces::msg::Bumper::SharedPtr msg) 
   {
     RCLCPP_INFO(this->get_logger(), "I heard: '%d'", msg->left);
 
@@ -108,21 +108,14 @@ public:
       memcpy(&pointcloud_.data[2 * pointcloud_.point_step + pointcloud_.fields[1].offset], &N_INF_Y, sizeof(float));
     }
 
-    pointcloud_.header.stamp = now(); //msg->header.stamp;
+    pointcloud_.header.stamp = now();
     this->publisher_->publish(pointcloud_);
-
-
-    /* ON EVENT FINISHED */
-
-    auto message = std_msgs::msg::String();
-    message.data = "Hello, world! " + std::to_string(pc_radius_);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
   }
 
 private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
-  rclcpp::Subscription<bumper2pc::msg::Bumper>::SharedPtr subscription_;
+  rclcpp::Subscription<bumper_interfaces::msg::Bumper>::SharedPtr subscription_;
 
   std::string base_link_frame_;
 

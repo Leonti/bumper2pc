@@ -16,12 +16,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-
-find_package(rosidl_default_generators REQUIRED)
+find_package(bumper_interfaces REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -35,24 +33,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(bumper2pc src/bumper2pc.cpp)
-ament_target_dependencies(bumper2pc rclcpp std_msgs sensor_msgs)
-
-set(msg_files
-  "msg/Bumper.msg"
-)
-rosidl_generate_interfaces(${PROJECT_NAME}_msgs
-  ${msg_files}
-  LIBRARY_NAME ${PROJECT_NAME}
-)
-rosidl_target_interfaces(bumper2pc ${PROJECT_NAME}_msgs rosidl_typesupport_cpp)
-
-
-ament_export_dependencies(rosidl_default_runtime)
-
-install(DIRECTORY
-  launch
-  DESTINATION share/${PROJECT_NAME}/
-)
+ament_target_dependencies(bumper2pc rclcpp std_msgs sensor_msgs bumper_interfaces)
 
 install(TARGETS
   bumper2pc
